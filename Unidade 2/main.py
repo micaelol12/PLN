@@ -19,7 +19,14 @@ def criar_driver():
     
     return webdriver.Chrome(options=options)
 
+
 def carrega_todos_links(driver):
+    """
+    Carrega todos os links da página, clicando no botão de carregar mais até ele deixar de aparecer
+
+    Args:
+        driver (webdriver): Driver.
+    """
     while True:
         try:
             wait = WebDriverWait(driver, WEB_DRIVER_TIMEOUT)
@@ -35,7 +42,18 @@ def carrega_todos_links(driver):
             break
 
 def pega_links(driver):
-    links = driver.find_elements(By.CSS_SELECTOR, '[data-auto="result-item-title__link"]')
+    """
+    Busca todos os links da página
+
+    Args:
+        driver (webdriver): Driver.
+    Returns:
+        list: Lista dos links encontrados.
+    """
+    wait = WebDriverWait(driver, WEB_DRIVER_TIMEOUT)
+    links_selector = '[data-auto="result-item-title__link"]'
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, links_selector)))
+    links = driver.find_elements(By.CSS_SELECTOR, links_selector)
     urls = [l.get_attribute("href") for l in links]
 
     print('Urls econtradas: ', urls)
@@ -54,6 +72,15 @@ def pegar_link(driver, selector):
         return ""
     
 def pegar_dados_link(url):
+    """
+    Busca os dados da página do artigo
+
+    Args:
+        url (string): String da página.
+    Returns:
+        dict: Dados do artigo.
+    """
+    
     driver = criar_driver()
     try:
             driver.get(url)
@@ -71,8 +98,8 @@ def pegar_dados_link(url):
 
             dados["tipo_documento"] = pegar_texto(driver, "#TypDoc + ul li")
             dados["autor"] = pegar_texto(driver, "#Au + ul li")
-            dados["palavras_chave"] = [p.text for p in palavras_chaves] if palavras_chaves else ""
             dados["titulo"] = pegar_texto(driver, "#Ti + ul li")
+            dados["palavras_chave"] = [p.text for p in palavras_chaves] if palavras_chaves else ""
             dados["link_PDF"] = pegar_link(driver, "#URL + ul a")
             dados["fonte_url"] = driver.current_url
             dados["ano"] = pegar_texto(driver, "#Date + ul li")
@@ -82,11 +109,19 @@ def pegar_dados_link(url):
 
             return dados
     except Exception as e:
-            print("Erro ao pegar dados",e)
+            print("Erro ao pegar dados", e)
     finally:
             driver.quit()
 
 def processar_links(urls):
+    """
+    Procesa todos os links e pega os dados artigos
+
+    Args:
+        url (list): Urls das páginas a serem processadas.
+    Returns:
+        list: Lista com todos os dados do artigo processados com sucesso.
+    """
     dados = []
     
     with ThreadPoolExecutor(max_workers=WEB_DRIVER_MAX_WORKERS) as executor:
@@ -95,7 +130,9 @@ def processar_links(urls):
         for future in as_completed(futures):
             try:
                 resultado = future.result()
-                dados.append(resultado)
+                
+                if resultado:
+                    dados.append(resultado)
             except Exception as e:
                 print("Erro:", e)
                 
@@ -113,7 +150,7 @@ def salvar_excel(dados):
 driver = criar_driver()
 driver.get(URL)
 
-#carrega_todos_links(driver)
+carrega_todos_links(driver)
 
 urls = pega_links(driver)
 dados = processar_links(urls)
