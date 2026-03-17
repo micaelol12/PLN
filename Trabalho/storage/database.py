@@ -113,6 +113,27 @@ class Database:
 
         return [row[0] for row in cursor.fetchall()]
     
+    def get_deputados_ids(self):
+        cursor = self.conn.execute("SELECT id FROM deputado")
+
+        return [row[0] for row in cursor.fetchall()]
+    
+    def get_preposicoes_ids(self):
+        cursor = self.conn.execute("SELECT id FROM preposicao")
+
+        return [row[0] for row in cursor.fetchall()]
+    
+    
+    def get_preposicoes_detalhes_ids(self):
+        cursor = self.conn.execute("SELECT id FROM preposicao_detalhes")
+
+        return [row[0] for row in cursor.fetchall()]
+    
+    def get_discursos_ids(self):
+        cursor = self.conn.execute("SELECT id FROM discurso")
+
+        return [row[0] for row in cursor.fetchall()]
+    
     def get_preposicoes_ids(self):
         cursor = self.conn.execute("""
 SELECT 
