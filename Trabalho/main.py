@@ -8,7 +8,6 @@ from pipeline.retry_worker import retry_worker
 
 BASE_URL = "https://dadosabertos.camara.leg.br/api/v2/"
 
-
 async def main():
     api_client = ApiClient(BASE_URL)
     database = Database()
@@ -104,7 +103,7 @@ async def buscar_preoposicoes(ids, retry_queue, api_client, database):
 @medir_tempo("buscar_preposicoes_detalhes")
 async def buscar_preposicoes_detalhes(retry_queue, api_client, database):
     ids = database.get_preposicoes_ids()
-    ids_salvos = database.get_preposicoes_detalhes_ids()
+    ids_salvos = database.get_preposicoes_detalhes_com_pdf_ids()
     ids_nao_repetidos = [id for id in ids if id not in ids_salvos]
     
     if len(ids_nao_repetidos) == 0:

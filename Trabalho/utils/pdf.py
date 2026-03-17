@@ -1,4 +1,5 @@
 from pdfminer.high_level import extract_text
+import re
 import io
 
 def extrair_texto_pdf(pdf_bytes):
@@ -9,18 +10,23 @@ def extrair_texto_pdf(pdf_bytes):
     return texto
 
 async def baixar_pdf(client, url):
+    try:
+        response = await client.get(url)
 
-    response = await client.get(url)
+        response.raise_for_status()
+        
+        if "text/html" in response.headers.get("content-type",""):
+            redirect_url = extrair_redirect(response.text)
 
-    response.raise_for_status()
+            if redirect_url:
+                response = await client.get(redirect_url)
 
-    content_type = response.headers.get("content-type", "")
-
-    if "pdf" not in content_type:
-        print("Não é PDF:", url)
+        if "pdf" not in response.headers.get("content-type",""):
+            return None
+        
+        return response.content
+    except:
         return None
-    
-    return response.content
 
 async def baixar_e_extrair_pdf(client, url):
 
@@ -33,3 +39,11 @@ async def baixar_e_extrair_pdf(client, url):
 
     return texto
 
+def extrair_redirect(html):
+
+    match = re.search(r'URL=([^"]+)', html)
+
+    if match:
+        return match.group(1)
+
+    return None
