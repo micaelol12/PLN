@@ -14,6 +14,9 @@ async def main():
     ids = database.get_ids()
 
     await baixar_dados(ids, database)
+    
+def pipeline_limpeza_dados():
+    pass
 
 async def baixar_dados(ids, database):
     api_client = ApiClient(BASE_URL)
@@ -22,10 +25,10 @@ async def baixar_dados(ids, database):
     if len(ids) == 0:
         ids = procuraIds(api_client, database)
 
-    # await buscar_deputados(ids, retry_queue, api_client, database)
-    # await buscar_discursos(ids, retry_queue, api_client, database)
+    await buscar_deputados(ids, retry_queue, api_client, database)
+    await buscar_discursos(ids, retry_queue, api_client, database)
     await buscar_preoposicoes(ids, retry_queue, api_client, database)
-    # await buscar_preposicoes_detalhes(retry_queue, api_client, database)
+    await buscar_preposicoes_detalhes(retry_queue, api_client, database)
 
     await api_client.close()
 

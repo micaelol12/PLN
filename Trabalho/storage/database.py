@@ -28,6 +28,8 @@ class Database:
             id_discurso INTEGER,
             collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             json TEXT,
+            sumario TEXT,
+            transcricao TEXT,
             PRIMARY KEY (id, id_discurso)
         );
         """)
@@ -46,7 +48,9 @@ class Database:
         CREATE TABLE IF NOT EXISTS preposicao_detalhes (
             id INTEGER PRIMARY KEY,
             collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            json TEXT
+            json TEXT,
+            ementa TEXT,
+            texto_pdf TEXT
         )
         """)
 
@@ -96,8 +100,9 @@ class Database:
         id_discurso = 0
         for d in item["dados"]:
             self.conn.execute(
-                "INSERT OR IGNORE INTO discurso (id, id_discurso, json) VALUES (?, ? , ?)",
-                (item["id"], id_discurso, json.dumps(d))
+                "INSERT OR IGNORE INTO discurso (id, id_discurso, json, sumario, transcricao) VALUES (?,?,?,?,?)",
+                (item["id"], id_discurso, json.dumps(
+                    d), d["sumario"], d["transcricao"])
             )
             id_discurso += 1
 
@@ -110,8 +115,9 @@ class Database:
             return
 
         self.conn.execute(
-            "INSERT OR IGNORE INTO preposicao_detalhes (id, json) VALUES (?, ?)",
-            (dados["id"], json.dumps(dados))
+            "INSERT OR IGNORE INTO preposicao_detalhes (id, json, ementa, texto_pdf) VALUES (?,?,?,?)",
+            (dados["id"], json.dumps(dados),
+             dados["ementa"], dados["texto_pdf"])
         )
 
         self.conn.commit()
@@ -153,6 +159,7 @@ WHERE json_extract(json,'$.texto_pdf') IS NOT NULL
         return [row[0] for row in cursor.fetchall()]
 
     def get_preposicoes_ids(self):
-        cursor = self.conn.execute("SELECT preposicao.id_preposicao FROM preposicao")
+        cursor = self.conn.execute(
+            "SELECT preposicao.id_preposicao FROM preposicao")
 
         return [row[0] for row in cursor.fetchall()]
