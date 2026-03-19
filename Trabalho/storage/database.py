@@ -145,11 +145,11 @@ class Database:
     def get_preposicoes_detalhes_com_pdf_ids(self):
         cursor = self.conn.execute("""
     SELECT 
-    id AS proposicao_id,
-    json_extract(json,'$.texto_pdf') AS texto_pdf
+    id,
+    texto_pdf
 FROM preposicao_detalhes
-WHERE json_extract(json,'$.texto_pdf') IS NOT NULL
-  AND TRIM(json_extract(json,'$.texto_pdf')) != ''; """)
+WHERE texto_pdf IS NOT NULL
+  AND texto_pdf != ''; """)
 
         return [row[0] for row in cursor.fetchall()]
 
