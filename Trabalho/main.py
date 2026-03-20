@@ -14,9 +14,8 @@ async def main():
     ids = database.get_ids()
 
     await baixar_dados(ids, database)
-    
-def pipeline_limpeza_dados():
-    pass
+
+
 
 async def baixar_dados(ids, database):
     api_client = ApiClient(BASE_URL)

@@ -1,0 +1,44 @@
+import re
+from bs4 import BeautifulSoup
+import unicodedata
+import spacy
+
+nlp = spacy.load("pt_core_news_sm")
+
+def limpar_texto(texto: str):
+    # remove HTML
+    texto = BeautifulSoup(texto, "html.parser").get_text()
+    # remove URLs
+    texto = re.sub(r"http\S+", "", texto)
+    # remove caracteres especiais (mantém acentos)
+    texto = re.sub(r"[^a-zA-ZÀ-ÿ\s]", "", texto)
+    # normaliza espaços
+    texto = re.sub(r"\s+", " ", texto).strip()
+
+    return texto
+
+def remover_acentos(texto: str):
+    texto = unicodedata.normalize('NFKD', texto)
+    texto = ''.join(c for c in texto if not unicodedata.combining(c))
+    return texto
+
+def remover_stopwords(texto:str ):
+    doc = nlp(texto)
+    return " ".join([token.text for token in doc if not token.is_stop])
+
+def normalizar_texto(texto: str):
+    texto = texto.lower()
+    texto = remover_acentos(texto)
+    texto = remover_stopwords(texto)
+    
+def tokenizar_texto(texto: str):
+    doc = nlp(texto)
+    
+    tokens = [token.text for token in doc if token.is_alpha]
+    lemmas = [token.lemma_ for token in doc if token.is_alpha]
+    
+    return tokens,lemmas
+
+#todo para cada coluna de texto (sumario,ementa,transcricao):
+
+# colunas: raw_text,cleaned_text,normalized_text,tokenized_text,lemized_text
