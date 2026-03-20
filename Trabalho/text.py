@@ -1,8 +1,11 @@
 import re
 from bs4 import BeautifulSoup
+from nltk.stem import RSLPStemmer
 import unicodedata
 import spacy
+import nltk
 
+nltk.download('rslp')
 nlp = spacy.load("pt_core_news_sm")
 
 def limpar_texto(texto: str):
@@ -30,15 +33,20 @@ def normalizar_texto(texto: str):
     texto = texto.lower()
     texto = remover_acentos(texto)
     texto = remover_stopwords(texto)
-    
+
+
 def tokenizar_texto(texto: str):
     doc = nlp(texto)
+    stemmer = RSLPStemmer()
     
     tokens = [token.text for token in doc if token.is_alpha]
     lemmas = [token.lemma_ for token in doc if token.is_alpha]
-    
-    return tokens,lemmas
+    stems = [stemmer.stem(token.text) for token in doc if token.is_alpha]
+
+    return tokens,lemmas,stems
 
 #todo para cada coluna de texto (sumario,ementa,transcricao):
 
-# colunas: raw_text,cleaned_text,normalized_text,tokenized_text,lemized_text
+print(tokenizar_texto("os deputados estavam votando propostas"))
+
+# colunas: text,cleaned_text,normalized_text,tokenized_text,lemized_text

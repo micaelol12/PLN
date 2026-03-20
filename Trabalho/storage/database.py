@@ -28,8 +28,18 @@ class Database:
             id_discurso INTEGER,
             collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             json TEXT,
-            sumario TEXT,
             transcricao TEXT,
+            transcricao_limpo TEXT,
+            transcricao_normalizado TEXT,
+            transcricao_tokens TEXT,
+            transcricao_lemizado TEXT,
+            transcricao_stemizado TEXT,
+            sumario TEXT,
+            sumario_limpo TEXT,
+            sumario_normalizado TEXT,
+            sumario_tokens TEXT,
+            sumario_lemizado TEXT,
+            sumario_stemizado TEXT,
             PRIMARY KEY (id, id_discurso)
         );
         """)
@@ -50,7 +60,17 @@ class Database:
             collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             json TEXT,
             ementa TEXT,
-            texto_pdf TEXT
+            ementa_limpo TEXT,
+            ementa_normalizado TEXT,
+            ementa_tokens TEXT,
+            ementa_lemizado TEXT,
+            ementa_stemizado TEXT,
+            texto_pdf TEXT,
+            texto_pdf_limpo TEXT,
+            texto_pdf_normalizado TEXT,
+            texto_pdf_tokens TEXT,
+            texto_pdf_lemizado TEXT,
+            texto_pdf_stemizado TEXT
         )
         """)
 

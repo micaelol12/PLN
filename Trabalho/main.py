@@ -16,6 +16,9 @@ async def main():
     await baixar_dados(ids, database)
 
 
+async def pipeline_pre_processamento_texto():
+    pass
+
 
 async def baixar_dados(ids, database):
     api_client = ApiClient(BASE_URL)
