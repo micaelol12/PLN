@@ -75,16 +75,16 @@ class Database:
         )
         """)
 
-    def salvar_preprocessamento_generico(self, tabela, prefixo, id, id_ref, limpo, normalizado, tokens, lemmas, stems):
+    def salvar_preprocessamento_discurso(self, prefixo, id, id_ref, limpo, normalizado, tokens, lemmas, stems):
         self.conn.execute(f"""
-            UPDATE {tabela}
+            UPDATE discurso
             SET 
                 {prefixo}_limpo = ?,
                 {prefixo}_normalizado = ?,
                 {prefixo}_tokens = ?,
                 {prefixo}_lemizado = ?,
                 {prefixo}_stemizado = ?
-            WHERE id = ? AND id_{tabela} = ?
+            WHERE id = ? AND id_discurso = ?
         """, (
             limpo,
             normalizado,
@@ -93,6 +93,28 @@ class Database:
             json.dumps(stems),
             id,
             id_ref
+        ))
+
+        self.conn.commit()
+        
+        
+    def salvar_preprocessamento_preposicao_detalhes(self, prefixo, id, limpo, normalizado, tokens, lemmas, stems):
+        self.conn.execute(f"""
+            UPDATE preposicao_detalhes
+            SET 
+                {prefixo}_limpo = ?,
+                {prefixo}_normalizado = ?,
+                {prefixo}_tokens = ?,
+                {prefixo}_lemizado = ?,
+                {prefixo}_stemizado = ?
+            WHERE id = ?
+        """, (
+            limpo,
+            normalizado,
+            json.dumps(tokens),
+            json.dumps(lemmas),
+            json.dumps(stems),
+            id
         ))
 
         self.conn.commit()

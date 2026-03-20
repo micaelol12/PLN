@@ -10,50 +10,53 @@ from text import pre_processar_texto
 BASE_URL = "https://dadosabertos.camara.leg.br/api/v2/"
 DATABASE_PATH = "data.db"
 
+
 async def main():
     database = Database(DATABASE_PATH)
     ids = database.get_ids()
 
     # await baixar_dados(ids, database)
-    pre_processamento_discurso(database)
+    # pre_processamento_discurso(database)
     pre_processamento_preposicao(database)
 
 def pre_processamento_discurso(database):
     discursos = database.get_discursos()
-    
+
     for discurso in discursos:
         id = discurso["id"]
         id_discurso = discurso["id_discurso"]
         transcricao = discurso["transcricao"]
         sumario = discurso["sumario"]
-        
+
         if sumario and len(sumario) > 0:
-            database.salvar_preprocessamento_generico("discurso","sumario",id,id_discurso,*pre_processar_texto(sumario))
-            
-        database.salvar_preprocessamento_generico("discurso","transcricao",id,id_discurso,*pre_processar_texto(transcricao))
+            database.salvar_preprocessamento_discurso(
+                "sumario", id, id_discurso, *pre_processar_texto(sumario))
+
+        database.salvar_preprocessamento_discurso(
+            "transcricao", id, id_discurso, *pre_processar_texto(transcricao))
+
 
 def pre_processamento_preposicao(database):
     preposicoes = database.get_preposicao_detalhes()
-    
+
     for preposicao in preposicoes:
         id = preposicao["id"]
         ementa = preposicao["ementa"]
         texto_pdf = preposicao["texto_pdf"]
-        
-        if texto_pdf and len(texto_pdf) > 0:
-            texto_pdf = tratar_pdf()
-            database.salvar_preprocessamento_generico("preposicao_detalhes","texto_pdf",id,id_discurso,*pre_processar_texto(texto_pdf))
-            
-        database.salvar_preprocessamento_generico("preposicao_detalhes","ementa",id,id_discurso,*pre_processar_texto(ementa))
 
-#TODO
+        # if texto_pdf and len(texto_pdf) > 0:
+        #     texto_pdf = tratar_pdf()
+        #     database.salvar_preprocessamento_preposicao_detalhes("texto_pdf", id, *pre_processar_texto(texto_pdf))
+
+        database.salvar_preprocessamento_preposicao_detalhes("ementa", id, *pre_processar_texto(ementa))
+
 def tratar_pdf(pdf):
     pass
 
 async def baixar_dados(ids, database):
     api_client = ApiClient(BASE_URL)
     retry_queue = asyncio.Queue()
-    
+
     if len(ids) == 0:
         ids = procuraIds(api_client, database)
 
