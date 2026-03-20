@@ -5,6 +5,7 @@ from utils.time_decorator import medir_tempo
 from pipeline.producer import produzir_ids
 from pipeline.worker import worker
 from pipeline.retry_worker import retry_worker
+from text import pre_processar_texto
 
 BASE_URL = "https://dadosabertos.camara.leg.br/api/v2/"
 DATABASE_PATH = "data.db"
@@ -13,12 +14,41 @@ async def main():
     database = Database(DATABASE_PATH)
     ids = database.get_ids()
 
-    await baixar_dados(ids, database)
+    # await baixar_dados(ids, database)
+    pre_processamento_discurso(database)
+    pre_processamento_preposicao(database)
 
+def pre_processamento_discurso(database):
+    discursos = database.get_discursos()
+    
+    for discurso in discursos:
+        id = discurso["id"]
+        id_discurso = discurso["id_discurso"]
+        transcricao = discurso["transcricao"]
+        sumario = discurso["sumario"]
+        
+        if sumario and len(sumario) > 0:
+            database.salvar_preprocessamento_generico("discurso","sumario",id,id_discurso,*pre_processar_texto(sumario))
+            
+        database.salvar_preprocessamento_generico("discurso","transcricao",id,id_discurso,*pre_processar_texto(transcricao))
 
-async def pipeline_pre_processamento_texto():
+def pre_processamento_preposicao(database):
+    preposicoes = database.get_preposicao_detalhes()
+    
+    for preposicao in preposicoes:
+        id = preposicao["id"]
+        ementa = preposicao["ementa"]
+        texto_pdf = preposicao["texto_pdf"]
+        
+        if texto_pdf and len(texto_pdf) > 0:
+            texto_pdf = tratar_pdf()
+            database.salvar_preprocessamento_generico("preposicao_detalhes","texto_pdf",id,id_discurso,*pre_processar_texto(texto_pdf))
+            
+        database.salvar_preprocessamento_generico("preposicao_detalhes","ementa",id,id_discurso,*pre_processar_texto(ementa))
+
+#TODO
+def tratar_pdf(pdf):
     pass
-
 
 async def baixar_dados(ids, database):
     api_client = ApiClient(BASE_URL)

@@ -5,6 +5,7 @@ import json
 class Database:
     def __init__(self, path="data.db"):
         self.conn = sqlite3.connect(path)
+        self.conn.row_factory = sqlite3.Row
         self._create_table()
 
     def _create_table(self):
@@ -73,6 +74,28 @@ class Database:
             texto_pdf_stemizado TEXT
         )
         """)
+
+    def salvar_preprocessamento_generico(self, tabela, prefixo, id, id_ref, limpo, normalizado, tokens, lemmas, stems):
+        self.conn.execute(f"""
+            UPDATE {tabela}
+            SET 
+                {prefixo}_limpo = ?,
+                {prefixo}_normalizado = ?,
+                {prefixo}_tokens = ?,
+                {prefixo}_lemizado = ?,
+                {prefixo}_stemizado = ?
+            WHERE id = ? AND id_{tabela} = ?
+        """, (
+            limpo,
+            normalizado,
+            json.dumps(tokens),
+            json.dumps(lemmas),
+            json.dumps(stems),
+            id,
+            id_ref
+        ))
+
+        self.conn.commit()
 
     def save_ids(self, ids):
         data = [(i,) for i in ids]
@@ -156,6 +179,14 @@ class Database:
         cursor = self.conn.execute("SELECT id FROM preposicao")
 
         return [row[0] for row in cursor.fetchall()]
+    
+    def get_discursos(self):
+        cursor = self.conn.execute("SELECT * FROM discurso")
+        return [dict(row) for row in cursor.fetchall()]
+    
+    def get_preposicao_detalhes(self):
+        cursor = self.conn.execute("SELECT * FROM preposicao_detalhes")
+        return [dict(row) for row in cursor.fetchall()]
 
     def get_preposicoes_detalhes_ids(self):
         cursor = self.conn.execute("SELECT id FROM preposicao_detalhes")
