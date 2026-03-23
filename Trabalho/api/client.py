@@ -54,7 +54,7 @@ class ApiClient:
     
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=1, max=10))
     async def get_preoposicoes(self, item_id: int):
-        response = await self.client.get(f"{self.base_url}proposicoes?idDeputadoAutor={item_id}&pagina=1&ordem=ASC&ordenarPor=id")
+        response = await self.client.get(f"{self.base_url}proposicoes?idDeputadoAutor={item_id}&codTipo=139,140,136,190,187,254&pagina=1&ordem=ASC&ordenarPor=id")
         response.raise_for_status()
         json = response.json()
         json["id"] = item_id
