@@ -16,6 +16,7 @@ class ApiClient:
         ids.extend([i["id"] for i in data['dados']])
 
         return ids
+        
     
     async def get_preposicao_data(self, item_id: int):
         response = await self.client.get(f"{self.base_url}proposicoes/{item_id}")
@@ -45,7 +46,7 @@ class ApiClient:
     
     @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=1, max=10))
     async def get_discursos(self, item_id: int):
-        response = await self.client.get(f"{self.base_url}deputados/{item_id}/discursos?ordenarPor=dataHoraInicio&ordem=DESC&pagina=1")
+        response = await self.client.get(f"{self.base_url}deputados/{item_id}/discursos?dataInicio=2018-01-01&dataFim=2022-01-01&ordenarPor=dataHoraInicio&ordem=DESC&pagina=1")
         response.raise_for_status()
         json = response.json()
         json["id"] = item_id

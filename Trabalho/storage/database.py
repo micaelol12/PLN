@@ -96,8 +96,7 @@ class Database:
         ))
 
         self.conn.commit()
-        
-        
+
     def salvar_preprocessamento_preposicao_detalhes(self, prefixo, id, limpo, normalizado, tokens, lemmas, stems):
         self.conn.execute(f"""
             UPDATE preposicao_detalhes
@@ -162,7 +161,8 @@ class Database:
         if len(dados) == 0:
             return
 
-        id_discurso = 0
+        id_discurso = self.get_ultimo_id_discurso(item["id"])
+        
         for d in item["dados"]:
             self.conn.execute(
                 "INSERT OR IGNORE INTO discurso (id, id_discurso, json, sumario, transcricao) VALUES (?,?,?,?,?)",
@@ -201,11 +201,11 @@ class Database:
         cursor = self.conn.execute("SELECT id FROM preposicao")
 
         return [row[0] for row in cursor.fetchall()]
-    
+
     def get_discursos(self):
         cursor = self.conn.execute("SELECT * FROM discurso")
         return [dict(row) for row in cursor.fetchall()]
-    
+
     def get_preposicao_detalhes(self):
         cursor = self.conn.execute("SELECT * FROM preposicao_detalhes")
         return [dict(row) for row in cursor.fetchall()]
@@ -236,3 +236,10 @@ WHERE texto_pdf IS NOT NULL
             "SELECT preposicao.id_preposicao FROM preposicao")
 
         return [row[0] for row in cursor.fetchall()]
+
+    def get_ultimo_id_discurso(self, id):
+        cursor = self.conn.execute(
+            "select coalesce(max(id_discurso),0) from discurso where id = ?", (id,))
+
+        row = cursor.fetchone()
+        return row[0]
