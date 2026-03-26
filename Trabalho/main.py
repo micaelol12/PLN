@@ -1,4 +1,5 @@
 import asyncio
+
 from storage.database import Database
 from api.client import ApiClient
 from utils.time_decorator import medir_tempo
@@ -13,12 +14,15 @@ DATABASE_PATH = "data.db"
 
 async def main():
     database = Database(DATABASE_PATH)
-    ids = database.get_ids()
 
-    # await baixar_dados(ids, database)
+    # await baixar_dados(database)
+    # await pre_processamento(database)
+    
+async def pre_processamento(database):
     await pre_processamento_discurso(database)
     # pre_processamento_preposicao(database)
-    
+
+
 @medir_tempo("pre_processamento_discurso")
 async def pre_processamento_discurso(database):
     discursos = database.get_discursos()
@@ -51,10 +55,13 @@ def pre_processamento_preposicao(database):
 
         database.salvar_preprocessamento_preposicao_detalhes("ementa", id, *pre_processar_texto(ementa))
 
+
 def tratar_pdf(pdf):
     pass
 
-async def baixar_dados(ids, database):
+
+async def baixar_dados(database):
+    ids = database.get_ids()
     api_client = ApiClient(BASE_URL)
     retry_queue = asyncio.Queue()
 
