@@ -3,11 +3,8 @@ from bs4 import BeautifulSoup
 from nltk.stem import RSLPStemmer
 import unicodedata
 import spacy
-import nltk
 
-nltk.download('rslp')
 nlp = spacy.load("pt_core_news_sm")
-
 
 def limpar_texto(texto: str):
     # remove HTML

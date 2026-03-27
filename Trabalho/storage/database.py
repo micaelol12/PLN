@@ -243,3 +243,7 @@ WHERE texto_pdf IS NOT NULL
 
         row = cursor.fetchone()
         return row[0]
+    
+    def get_discursos(self,size:int):
+        cursor = self.conn.execute("SELECT * FROM discurso LIMIT ?;",(size,))
+        return [dict(row) for row in cursor.fetchall()]
