@@ -1,3 +1,5 @@
+from datetime import timedelta, datetime
+
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 from utils.pdf import baixar_e_extrair_pdf
@@ -64,3 +66,43 @@ class ApiClient:
     
     async def close(self):
         await self.client.aclose()
+
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=1, max=10))
+    async def get_discursos_varios_anos(self, item_id: int):
+        inicio = datetime(2018, 1, 1)
+        fim =  datetime(2026, 1, 1)
+
+        resultados = []
+
+        atual_inicio = inicio
+
+        while atual_inicio <= fim:
+            # limite de 4 anos por requisição
+            atual_fim = min(
+                atual_inicio.replace(year=atual_inicio.year + 4),
+                fim
+            )
+
+            url = (
+                f"{self.base_url}deputados/{item_id}/discursos"
+                f"?dataInicio={atual_inicio.strftime('%Y-%m-%d')}"
+                f"&dataFim={atual_fim.strftime('%Y-%m-%d')}"
+                f"&ordenarPor=dataHoraInicio"
+                f"&ordem=DESC"
+                f"&pagina=1"
+            )
+
+            response = await self.client.get(url)
+            response.raise_for_status()
+            data = response.json()
+
+            # junta os dados (geralmente vem em data["dados"])
+            resultados.extend(data.get("dados", []))
+
+            # avança para o próximo intervalo (evita sobreposição)
+            atual_inicio = atual_fim + timedelta(days=1)
+
+        return {
+            "id": item_id,
+            "dados": resultados
+        }

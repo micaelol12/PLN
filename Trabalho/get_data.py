@@ -14,10 +14,10 @@ async def baixar_dados(database, url):
     if len(ids) == 0:
         ids = procuraIds(api_client, database)
 
-    await buscar_deputados(ids, retry_queue, api_client, database)
+    #await buscar_deputados(ids, retry_queue, api_client, database)
     await buscar_discursos(ids, retry_queue, api_client, database)
-    await buscar_preoposicoes(ids, retry_queue, api_client, database)
-    await buscar_preposicoes_detalhes(retry_queue, api_client, database)
+    #await buscar_preoposicoes(ids, retry_queue, api_client, database)
+    #await buscar_preposicoes_detalhes(retry_queue, api_client, database)
 
     await api_client.close()
 
@@ -50,9 +50,10 @@ async def buscar_deputados(ids, retry_queue, api_client, database):
 @medir_tempo("buscar_discursos")
 async def buscar_discursos(ids, retry_queue, api_client, database):
     queue = await getQueue(ids)
+
     workers = [
         asyncio.create_task(
-            worker(queue, retry_queue, api_client.get_discursos,
+            worker(queue, retry_queue, api_client.get_discursos_varios_anos,
                    database.save_discursos)
         )
         for _ in range(10)

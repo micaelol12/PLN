@@ -245,7 +245,7 @@ WHERE texto_pdf IS NOT NULL
         return row[0]
     
     def get_discursos(self,size:int):
-        cursor = self.conn.execute("SELECT * FROM discurso LIMIT ?;",(size,))
+        cursor = self.conn.execute("SELECT * FROM discurso ORDER BY json_extract(json, '$.dataHoraInicio') DESC LIMIT ?;",(size,))
         return [dict(row) for row in cursor.fetchall()]
 
     def get_discurso_by_id(self, id_deputado, id_discurso):

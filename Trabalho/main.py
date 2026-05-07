@@ -25,9 +25,9 @@ nltk.download('rslp')
 async def main():
     database = Database(DATABASE_PATH)
 
-    # await baixar_dados(database, BASE_URL)
+    await baixar_dados(database, BASE_URL)
     # await pre_processamento_discurso(database)
-    processar_dados_bow(database)
+    #processar_dados_bow(database)
 
 
 def processar_dados_bow(database):
